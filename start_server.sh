@@ -1,0 +1,1 @@
+gunicorn -c app/gunicorn_config.py app:flask_app
