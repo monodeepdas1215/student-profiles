@@ -20,10 +20,6 @@ def available_apis():
                     "description": "GET list of all the students"
                 },
                 {
-                    "Classes": "/classes",
-                    "description": "GET list of all classes"
-                },
-                {
                     "Classes Taken By a Student": "/student/<student_id>/classes",
                     "description": "GET list of all the classes taken by a given student_id"
                 },
@@ -31,6 +27,11 @@ def available_apis():
                     "Studentwise Total marks": "/student/{student_id}/performance",
                     "description": "GET list of classes its performance taken by a student by student_id"
                 },
+                {
+                    "Classes": "/classes",
+                    "description": "GET list of all classes"
+                },
+                {},
                 {
                     "Classwise Total marks": "/class/<class_id>/performance",
                     "description": "GET the total marks of each student enrolled in the given class_id"
@@ -124,6 +125,21 @@ def classwise_performance(student_id):
 
         results = get_paginated_results(performance_classwise, request.base_url, int(offset), int(limit))
         return jsonify(results), 200
+
+    except Exception as e:
+        logger.exception(e)
+        abort(500)
+
+
+@api.route('/class/<class_id>/student')
+@authenticated_access
+def students_who_attended(class_id):
+    try:
+        # reading the request arguments
+        offset = request.args.get('offset', 0)
+        limit = request.args.get('limit', 10)
+
+
 
     except Exception as e:
         logger.exception(e)
