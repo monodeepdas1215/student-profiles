@@ -61,7 +61,10 @@ def get_student(student_id: str):
         }
     ]
     query = students.aggregate(pipeline)
-    return [i for i in query][0]
+    if len(query) > 0:
+        return [i for i in query]
+    else:
+        return []
 
 
 # this function gets a class id and returns the name and id of all the students who attended it
