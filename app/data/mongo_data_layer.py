@@ -61,8 +61,9 @@ def get_student(student_id: str):
         }
     ]
     query = students.aggregate(pipeline)
-    if len(query) > 0:
-        return [i for i in query]
+    results = [i for i in query]
+    if len(results) == 1:
+        return results[0]
     else:
         return []
 
