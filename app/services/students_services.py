@@ -44,6 +44,6 @@ def get_student_marks_by_course_service(student_id: str, class_id: str):
     result.append({"type": "total", "marks": total})
     # once we are sure that student has taken the course and we have the marks data we reconstruct the result
     student_details = get_student_details(student_id)
-    student_details["class_id"] = class_id
+    student_details["class_id"] = int(class_id)
     student_details["marks"] = result
     return student_details

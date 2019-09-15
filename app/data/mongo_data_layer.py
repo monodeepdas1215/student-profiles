@@ -163,3 +163,30 @@ def get_student_marks_by_course(student_id: str, class_id: str):
 
     query = student_data.aggregate(pipeline)
     return [i for i in query]
+
+
+# returns a list of the students who took the given class_id along with their performance details
+def final_grade_sheet(class_id: str):
+    student_data = MongoConnection.get_students_data_collection()
+
+    pipeline = [
+        {
+            "$match": {"class_id": int(class_id)}
+        },
+        {
+            "$lookup": {
+                "from": "students",
+                "localField": "student_id",
+                "foreignField": "_id",
+                "as": "view"
+            }
+        },
+        {
+            "$project": {
+                "_id": 0, "student_id": 1, "student_name": {"$arrayElemAt": ["$view.name", 0]}, "details": "$scores"
+            }
+        }
+    ]
+
+    query = student_data.aggregate(pipeline)
+    return [i for i in query]

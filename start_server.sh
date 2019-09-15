@@ -1,1 +1,1 @@
-gunicorn -c app/gunicorn_config.py app:flask_app
+nohup gunicorn -c app/gunicorn_config.py app:flask_app

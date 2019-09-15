@@ -2,7 +2,7 @@ from flask import Blueprint, request, abort
 
 from app.services.auth_services import authenticated_access
 from app.services.class_services import get_student_performance_in_class, get_all_classes_service, get_classes_taken, \
-    get_students_enrolled
+    get_students_enrolled, final_grade_sheet_service
 from app.services.composite.get_data import get_paginated_results
 from app.services.students_services import get_all_student_names, get_classes_performance, \
     get_student_marks_by_course_service
@@ -40,6 +40,10 @@ def available_apis():
                 {
                     "Classwise Total marks": "/class/<class_id>/performance",
                     "description": "GET the total marks of each student enrolled in the given class_id"
+                },
+                {
+                    "Final-Grade-Sheet": "/class/<class_id>/final-grade-sheet",
+                    "description": "GET the final-grade-sheet of all the students who took a particular class"
                 },
                 {
                     "Student + Class Type 1": "/class/<class_id>/student/<student_id>",
@@ -191,6 +195,29 @@ def studentwise_performance(class_id):
         classwise_performance = get_student_performance_in_class(class_id)
 
         results = get_paginated_results(classwise_performance, request.base_url, int(offset), int(limit))
+        return jsonify(results), 200
+
+    except Exception as e:
+        logger.exception(e)
+        abort(500)
+
+
+@api.route('/class/<class_id>/final-grade-sheet', methods=["GET"])
+@authenticated_access
+def final_grade_sheet(class_id):
+    try:
+        # reading the request arguments
+        offset = request.args.get('offset', 0)
+        limit = request.args.get('limit', 10)
+
+        results = final_grade_sheet_service(class_id)
+
+        if "status" in results.keys():
+            return jsonify({
+                "msg": results["msg"]
+            }), results["status"]
+
+        results = get_paginated_results(results, request.base_url, int(offset), int(limit))
         return jsonify(results), 200
 
     except Exception as e:
