@@ -1,10 +1,27 @@
-from app.data.mongo_data_layer import get_class_taken_by_student, get_studentwise_performance, get_classes
+from app.data.mongo_data_layer import get_class_taken_by_student, get_studentwise_performance, get_classes, \
+    get_studentwise_info
 from app.services.students_services import get_student_details
 from app.utils import logger
 
 
 def get_all_classes_service():
     return get_classes()
+
+
+def get_students_enrolled(class_id: str):
+    result = get_studentwise_info(class_id)
+    if result:
+        logger.info(len(result), "results returned")
+        return {
+            "class_id": class_id,
+            "students": result
+        }
+    else:
+        logger.info(0, "results returned")
+        return {
+            "class_id": class_id,
+            "students": []
+        }
 
 
 def get_student_performance_in_class(class_id: str):

@@ -2,6 +2,8 @@ import os
 
 from dotenv import load_dotenv
 
+from app.utils import logger
+
 
 class Config:
 
@@ -14,12 +16,12 @@ class Config:
 
     @staticmethod
     def populate_environment(filename):
-        print(filename)
+        logger.info("Populating environment variables from config file :", filename)
         load_dotenv(dotenv_path=filename)
 
     @staticmethod
     def from_environment():
-        config = {k[4:]:v for k, v in os.environ.items() if k[:4]=="APP_"}
+        config = {k[4:]: v for k, v in os.environ.items() if k[:4] == "APP_"}
         return config
 
 

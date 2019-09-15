@@ -49,6 +49,7 @@ def get_classes():
     return [i for i in query]
 
 
+# gets the student_name and student_id of a particular student_id given
 def get_student(student_id: str):
     students = MongoConnection.get_students_collection()
     pipeline = [
@@ -61,6 +62,32 @@ def get_student(student_id: str):
     ]
     query = students.aggregate(pipeline)
     return [i for i in query][0]
+
+
+# this function gets a class id and returns the name and id of all the students who attended it
+def get_studentwise_info(class_id: str):
+    students_data = MongoConnection.get_students_data_collection()
+    pipeline = [
+        {
+            "$match": {"class_id": int(class_id)}
+        },
+        {
+            "$project": {"_id": 0, "student_id": 1}
+        },
+        {
+            "$lookup": {
+                "from": "students",
+                "localField": "student_id",
+                "foreignField": "_id",
+                "as": "view"
+            }
+        },
+        {
+            "$project": {"_id": 0, "student_name": {"$arrayElemAt": ["$view.name", 0]}, "student_id": 1}
+        }
+    ]
+    query = students_data.aggregate(pipeline)
+    return [i for i in query]
 
 
 # get how every student performed according to given class
@@ -106,3 +133,33 @@ def get_class_taken_by_student(student_id: str, projection):
 
     classes_taken = student_data.aggregate(pipeline)
     return [i for i in classes_taken]
+
+
+# gets the student_id and course_id and returns marks as an array
+def get_student_marks_by_course(student_id: str, class_id: str):
+    student_data = MongoConnection.get_students_data_collection()
+    pipeline = [
+        {
+            "$match": {"class_id": int(class_id)}
+        },
+        {
+            "$lookup": {
+                "from": "students",
+                "localField": "student_id",
+                "foreignField": "_id",
+                "as": "view"
+            }
+        },
+        {
+            "$match": {"student_id": int(student_id)}
+        },
+        {
+            "$unwind": "$scores"
+        },
+        {
+            "$project": {"type": "$scores.type", "marks": "$scores.score", "_id": 0}
+        }
+    ]
+
+    query = student_data.aggregate(pipeline)
+    return [i for i in query]
