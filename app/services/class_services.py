@@ -81,8 +81,6 @@ def final_grade_sheet_service(class_id: str):
 
     student_count = len(students_with_score_details)
     students_with_score_details.sort(reverse=True, key=lambda x: x["total"])
-    logger.info("Total students :", student_count)
-    logger.info(students_with_score_details[:10])
 
     # assigning grades
     for i in range(student_count):
