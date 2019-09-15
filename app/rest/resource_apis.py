@@ -140,7 +140,7 @@ def classes_taken_by(student_id):
             }), classes_taken["status"]
 
         # if the given student_id exists in DB
-        # results = get_paginated_results(classes_taken, request.base_url, int(offset), int(limit))
+        results = get_paginated_results(classes_taken, request.base_url, int(offset), int(limit))
         return jsonify(classes_taken), 200
 
     except Exception as e:
