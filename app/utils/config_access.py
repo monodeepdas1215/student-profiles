@@ -26,3 +26,4 @@ class Config:
 
 
 config = Config('app/.env').get_config()
+logger.info("app configuration :", config)
