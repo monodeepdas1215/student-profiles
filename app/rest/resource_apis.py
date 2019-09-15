@@ -141,7 +141,7 @@ def classes_taken_by(student_id):
 
         # if the given student_id exists in DB
         results = get_paginated_results(classes_taken, request.base_url, int(offset), int(limit))
-        return jsonify(classes_taken), 200
+        return jsonify(results), 200
 
     except Exception as e:
         logger.exception(e)
@@ -157,6 +157,11 @@ def classwise_performance_of_a_student(student_id):
         limit = request.args.get('limit', 10)
 
         performance_classwise = get_classes_performance(student_id)
+
+        if "status" in performance_classwise.keys():
+            return jsonify({
+                "msg": performance_classwise["msg"]
+            }), performance_classwise["status"]
 
         results = get_paginated_results(performance_classwise, request.base_url, int(offset), int(limit))
         return jsonify(results), 200
