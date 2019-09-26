@@ -1,5 +1,5 @@
-from app.data.mongo_data_layer import get_class_taken_by_student, get_studentwise_performance, get_classes, \
-    get_studentwise_info, final_grade_sheet
+from app.data.mongo_data_layer import get_studentwise_performance, get_classes, \
+    get_studentwise_info, final_grade_sheet, get_classes_taken_by_student
 from app.services.students_services import get_student_details
 from app.utils import logger
 
@@ -49,12 +49,7 @@ def get_classes_taken(student_id: str):
             "status": 400
         }
     logger.info("Student found for the given student id")
-    student_details["classes"] = get_class_taken_by_student(student_id, {
-            '$project': {
-                "_id": 0,
-                "class_id": 1
-            }
-        })
+    student_details["classes"] = get_classes_taken_by_student(student_id)
     return student_details
 
 

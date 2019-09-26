@@ -1,4 +1,11 @@
+from app.utils.config_access import config
+
+
 def get_paginated_results(data, url, start: int, limit: int):
+
+    # if pagination is switched off then simply return the results
+    if config['PAGINATE_RESULTS'] in ['off', '0', 'false', 'False']:
+        return data
 
     output = {}
     if len(data) == 0:

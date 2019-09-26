@@ -1,5 +1,5 @@
-from flask import Blueprint, request, abort
-
+from flask import Blueprint, request, abort, jsonify
+from app.utils.config_access import config
 from app.services.auth_services import authenticated_access
 from app.services.class_services import get_student_performance_in_class, get_all_classes_service, get_classes_taken, \
     get_students_enrolled, final_grade_sheet_service
@@ -7,7 +7,6 @@ from app.services.composite.get_data import get_paginated_results
 from app.services.students_services import get_all_student_names, get_classes_performance, \
     get_student_marks_by_course_service
 from app.utils import logger
-from app.utils.json_encoders import jsonify
 
 api = Blueprint('resource_apis', __name__, url_prefix='/api')
 
@@ -15,6 +14,40 @@ api = Blueprint('resource_apis', __name__, url_prefix='/api')
 @api.route('/', methods=['GET'])
 def available_apis():
     try:
+        # if pagination is disabled then do not show the common params
+        if config['PAGINATE_RESULTS'] in ['off', '0', 'false', 'False']:
+            common_params = "switched off"
+        else:
+            common_params = [
+                {
+                    "offset": "<int> to start the results from the provided offset(DEFAULT: 0)"
+                },
+                {
+                    "limit": "<int> results in a batch(DEFAULT: 10)"
+                }
+            ]
+
+        # if authentication is disabled then do not show the auth params
+        if config['AUTHENTICATION'] in ['off', '0', 'false', 'False']:
+            auth_endpoints = "switched off"
+        else:
+            auth_endpoints = {
+                1: "JWT tokens are used to authenticate the api.",
+                2: {
+                    "Login": "To login and get JWT token",
+                    "path": "/auth/login",
+                    "description": "Existing users can login into the application by"
+                             " passing <username> and <password> in the request Authorization."
+                             "GET the request token from this API and use it as a part of the Authorization header in "
+                             "all other APIs"
+                },
+                3: {
+                    "Register": "To register a new user",
+                    "path": "/auth/register",
+                    "description": "pass a json body {username: <username>, password:<password>} to the POST request"
+                }
+            }
+
         return jsonify({
             "api_endpoints": [
                 {
@@ -56,30 +89,8 @@ def available_apis():
                                    "obtained by the student in the given class by its class_id"
                 }
             ],
-            "common_params": [
-                {
-                    "offset": "<int> to start the results from the provided offset(DEFAULT: 0)"
-                },
-                {
-                    "limit": "<int> results in a batch(DEFAULT: 10)"
-                }
-            ],
-            "auth": {
-                1: "JWT tokens are used to authenticate the api.",
-                2: {
-                    "Login": "To login and get JWT token",
-                    "path": "/auth/login",
-                    "description": "Existing users can login into the application by"
-                             " passing <username> and <password> in the request Authorization."
-                             "GET the request token from this API and use it as a part of the Authorization header in "
-                             "all other APIs"
-                },
-                3: {
-                    "Register": "To register a new user",
-                    "path": "/auth/register",
-                    "description": "pass a json body {username: <username>, password:<password>} to the POST request"
-                }
-            }
+            "common_params": common_params,
+            "auth": auth_endpoints
         }), 200
     except Exception as e:
         logger.exception(e)
@@ -95,7 +106,6 @@ def get_all_students():
         limit = request.args.get('limit', 10)
 
         students = get_all_student_names()
-
         results = get_paginated_results(students, request.base_url, int(offset), int(limit))
         return jsonify(results), 200
 

@@ -130,10 +130,51 @@ def get_studentwise_performance(class_id: str):
 
 
 # gets the performance (total_marks) of the given student in each taken class
-def get_class_taken_by_student(student_id: str, projection):
+def get_classes_taken_by_student(student_id: str):
     student_data = MongoConnection.get_students_data_collection()
 
-    pipeline = [{"$match": {"student_id": int(student_id)}}, projection]
+    pipeline = [{
+        "$match": {
+            "student_id": int(student_id)
+        }
+    },
+    {
+        "$project": {
+            "_id": 0,
+            "class_id": 1
+        }
+    },
+    {
+        "$group": {"_id": "$class_id"}
+    },
+    {
+        "$project": {
+            "class_id": "$_id", "_id": 0
+        }
+    }]
+
+    classes_taken = student_data.aggregate(pipeline)
+    return [i for i in classes_taken]
+
+
+# gets the performance (total_marks) of the given student in each taken class
+def get_classes_taken_by_student_total_marks(student_id: str):
+    student_data = MongoConnection.get_students_data_collection()
+
+    pipeline = [
+        {
+            "$match": {
+                "student_id": int(student_id)
+            }
+        },
+        {
+            '$project': {
+                "_id": 0,
+                "class_id": 1,
+                "total_marks": {"$sum": "$scores.score"}
+            }
+        }
+    ]
 
     classes_taken = student_data.aggregate(pipeline)
     return [i for i in classes_taken]

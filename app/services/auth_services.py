@@ -82,6 +82,10 @@ def verify_token(token):
 def authenticated_access(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+        # if authentication is switched off then simply return the result
+        if config['AUTHENTICATION'] in ['off', '0', 'false', 'False']:
+            return f(*args, **kwargs)
+
         authorization_token = request.headers.get('Authorization')
 
         if not authorization_token:

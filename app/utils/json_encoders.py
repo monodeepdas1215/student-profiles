@@ -12,10 +12,6 @@ class CustomJSONEncoder(flask.json.JSONEncoder):
             return o.isoformat()
         elif isinstance(o, bytes):
             return o.decode("utf-8")
+        elif isinstance(o, list):
+            return super().default(o)
         return super().default(o)
-
-
-def jsonify(*args, **kwargs):
-    """ jsonify with support for bytes
-    """
-    return Response(json.dumps(dict(*args, **kwargs), cls=CustomJSONEncoder), mimetype='application/json')

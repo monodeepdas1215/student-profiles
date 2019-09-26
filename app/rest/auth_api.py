@@ -1,9 +1,8 @@
 import traceback
 
-from flask import Blueprint, request, abort
+from flask import Blueprint, request, abort, jsonify
 from app.services.auth_services import generate_token, register_user, authenticate_user
 from app.utils import logger
-from app.utils.json_encoders import jsonify
 
 api = Blueprint('auth_api', __name__, url_prefix='/auth')
 
